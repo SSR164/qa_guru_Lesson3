@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.*;
 
 
@@ -25,38 +26,27 @@ public class OneTest {
         Configuration.pageLoadStrategy = "eager";
         Configuration.holdBrowserOpen = true;
         Configuration.timeout = 5000; // default 4000
-        String filePath = "https://img.freepik.com/premium-photo/cute-smart-cat-programmer-working-night-laptop-illustration-red-pet-glasses-typing-computer-keyboard-generative-ai_305419-3350.jpg";
+
     }
 
     @Test
     void fillFormTest() {
         open("/automation-practice-form");
+        executeJavaScript("$('#fixedban').remove()");
+        executeJavaScript("$('footer').remove()");
         $("#firstName").setValue("FirstName");
         $("#lastName").setValue("lastName");
         $("#userEmail").setValue("name@egmail.com");
         actions().moveToElement($("#gender-radio-1")).click().build().perform();
         $("#userNumber").setValue("1234567890");
         actions().moveToElement($("#dateOfBirthInput")).click().build().perform();
-        Select monthSelect = new Select($(".react-datepicker__month-select"));
-        monthSelect.selectByValue("10");
-        Select yearSelect = new Select($(".react-datepicker__year-select"));
-        yearSelect.selectByValue("1993");
-        SelenideElement dayElement = $x("//div[text()='4' and contains(@class, 'react-datepicker__day')]");
-        dayElement.click();
+        $(".react-datepicker__month-select").$(byText("November")).click();
+        $(".react-datepicker__year-select").$(byText("1993")).click();
+        $(".react-datepicker__day.react-datepicker__day--004").click();
         $("#subjectsInput").setValue("E").sendKeys(Keys.ENTER);
         actions().moveToElement($("#hobbies-checkbox-1")).click().build().perform();
         $("#currentAddress").setValue("Another street 1");
-        String url = "https://img.freepik.com/premium-photo/cute-smart-cat-programmer-working-night-laptop-illustration-red-pet-glasses-typing-computer-keyboard-generative-ai_305419-3350.jpg";//Эта строка устанавливает строковую переменную url в URL изображения.
-        File file = new File(url);//Эта строка создает новый объект File с URL в качестве пути. Однако, это не будет работать как ожидается, потому что конструктор File ожидает локальный путь файла, а не URL.
-        if (!file.exists()) { //Эта строка проверяет, существует ли объект File. Поскольку объект File был создан с URL, он не будет существовать как локальный файл, поэтому код внутри блока if будет выполнен.
-            file = new File("image.jpg");//Эта строка создает новый объект File с именем "image.jpg" в текущей рабочей директории.
-            try (InputStream in = new URL(url).openStream()) { //Эта строка открывает соединение с URL и создает InputStream для чтения данных изображения.
-                Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);//Эта строка копирует данные изображения из InputStream в локальный файл "image.jpg" с помощью метода Files.copy().
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        $("#uploadPicture").uploadFile(file);//Эта строка загружает локальный файл "image.jpg" в форму с помощью метода uploadFile() из Selenide.
+        $("#uploadPicture").uploadFromClasspath("image.jpg");
         $("#state").click();
         $("#react-select-3-input").setValue("N").sendKeys(Keys.ENTER);
         $("#city").click();
